@@ -3,11 +3,8 @@ const SERIES = [
   { id: 10365, league: "atp" },
   { id: 10366, league: "wta" },
 ];
-
 function parseMaybe(value) {
-  if (typeof value === "string") {
-    try { return JSON.parse(value); } catch { return value; }
-  }
+  if (typeof value === "string") { try { return JSON.parse(value); } catch { return value; } }
   return value;
 }
 function isMatchTitle(title, slug) {
@@ -23,17 +20,12 @@ function pickMoneyline(markets) {
   return null;
 }
 function normalize(event, league) {
-  const title = event.title || "";
-  const slug = event.slug || "";
+  const title = event.title || ""; const slug = event.slug || "";
   if (!isMatchTitle(title, slug)) return null;
-  const ml = pickMoneyline(event.markets || []);
-  if (!ml) return null;
-  const outcomes = parseMaybe(ml.outcomes) || [];
-  const prices = parseMaybe(ml.outcomePrices) || [];
+  const ml = pickMoneyline(event.markets || []); if (!ml) return null;
+  const outcomes = parseMaybe(ml.outcomes) || []; const prices = parseMaybe(ml.outcomePrices) || [];
   if (outcomes.length < 2 || prices.length < 2) return null;
-  const p1 = Number(prices[0]);
-  const p2 = Number(prices[1]);
-  if (!Number.isFinite(p1)) return null;
+  const p1 = Number(prices[0]); const p2 = Number(prices[1]); if (!Number.isFinite(p1)) return null;
   const bid = ml.bestBid == null ? null : Number(ml.bestBid);
   const ask = ml.bestAsk == null ? null : Number(ml.bestAsk);
   const mid = bid != null && ask != null ? (bid + ask) / 2 : p1;
@@ -48,7 +40,7 @@ async function fetchSeries(series) {
 }
 module.exports = async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Cache-Control", "s-maxage=2, stale-while-revalidate=8");
+  res.setHeader("Cache-Control", "s-maxage=0, stale-while-revalidate=2");
   const t0 = Date.now();
   try {
     const parts = await Promise.all(SERIES.map(fetchSeries));
